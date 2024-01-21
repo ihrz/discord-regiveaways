@@ -53,8 +53,22 @@ class db {
         return giveaway ? giveaway.isValid : false;
     }
 
+    IsEnded(giveawayId: string): boolean {
+        const giveaway = this.readGiveawayFile(giveawayId);
+        return giveaway ? giveaway.ended : false;
+    }
+
     Create(giveaway: Giveaway, giveawayId: string) {
         this.writeGiveawayFile(giveawayId, giveaway);
+    }
+
+    SetEnded(giveawayId: string, state: boolean) {
+        const giveaway = this.readGiveawayFile(giveawayId);
+        giveaway.ended = state;
+        return 'OK';
+    }
+
+    SetWinners(giveawayId: string, winners: string[]) {
     }
 
     get(params: string): any {

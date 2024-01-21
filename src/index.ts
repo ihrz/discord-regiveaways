@@ -18,32 +18,6 @@ import { Data } from './types/Data';
 import * as date from 'date-and-time';
 import db from './db.js';
 
-async function End(client: Client, data: Data) {
-
-    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
-
-    for (let channelId in fetch) {
-        for (let messageId in fetch[channelId]) {
-
-            if (messageId === data.messageId) {
-
-                let ended = await db.get(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`);
-
-                if (ended !== true) {
-                    await db.set(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`, 'End()');
-
-                    Finnish(
-                        client,
-                        messageId,
-                        data.guildId as string,
-                        channelId
-                    );
-                }
-            };
-
-        };
-    };
-};
 
 interface Fetch {
     members: string | any[];
@@ -81,63 +55,6 @@ function SelectWinners(fetch: Fetch, number: number) {
     } while (winners.length === 0);
 
     return winners.length > 0 ? winners : undefined;
-};
-
-async function Finnish(client: Client, messageId: string, guildId: string, channelId: string) {
-
-    let fetch = await db.get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
-
-    if (!fetch.ended === true || fetch.ended === 'End()') {
-        let guild = await client.guilds.fetch(guildId).catch(async () => {
-            db.delete(`GIVEAWAYS.${guildId}`);
-        });
-        if (!guild) return;
-
-        let channel = await guild.channels.fetch(channelId);
-
-        let message = await (channel as GuildTextBasedChannel).messages.fetch(messageId).catch(async () => {
-            db.delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
-            return;
-        }) as Message;
-
-        let winner = SelectWinners(
-            fetch,
-            fetch.winnerCount
-        );
-
-        let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
-
-        let Finnish = new ButtonBuilder()
-            .setLabel("Giveaway Finished")
-            .setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
-            .setStyle(ButtonStyle.Link);
-
-        let embeds = new EmbedBuilder()
-            .setColor('#2f3136')
-            .setTitle(fetch.prize)
-            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winners}`)
-            .setTimestamp()
-
-        await message?.edit({
-            embeds: [embeds], components: [
-                new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents(Finnish)]
-        });
-
-        if (winners !== 'None') {
-            await message?.reply({
-                content: `Congratulations ${winners}! You won the **${fetch.prize}**!`
-            })
-        } else {
-            await message?.reply({
-                content: "No valid entrants, so a winner could not be determined!"
-            });
-        };
-
-        db.set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`, true);
-        db.set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`, winner || 'None');
-    };
-    return;
 };
 
 
@@ -215,12 +132,12 @@ async function Refresh(client: Client) {
                 let cooldownTime = now - gwExp;
 
                 if (now >= gwExp) {
-                    Finnish(
-                        client,
-                        messageId,
-                        guildId,
-                        channelId
-                    );
+                    // Finnish(
+                    //     client,
+                    //     messageId,
+                    //     guildId,
+                    //     channelId
+                    // );
                 };
 
                 if (cooldownTime >= 345_600_000) {
@@ -321,7 +238,5 @@ export {
     GiveawaysManager_Init,
 
     Reroll,
-    End,
-
     ListEntries
 };
