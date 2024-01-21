@@ -161,8 +161,9 @@ class GiveawayManager extends EventEmitter {
 
     async finnish(client: Client, giveawayId: string, guildId: string, channelId: string) {
         let fetch = db.GetGiveawayData(giveawayId);
+        console.log(fetch)
 
-        if (!fetch.ended === true || fetch.ended === 'End()') {
+        if (!fetch.ended || fetch.ended === 'End()') {
             let guild = await client.guilds.fetch(guildId).catch(async () => {
                 db.DeleteGiveaway(giveawayId)
             });
@@ -372,15 +373,15 @@ class GiveawayManager extends EventEmitter {
 
         for (let giveawayId in drop_all_db) {
             let now = new Date().getTime();
-            let gwExp = new Date(drop_all_db[giveawayId].expireIn).getTime();
+            let gwExp = new Date(drop_all_db[giveawayId].giveawayData.expireIn).getTime();
             let cooldownTime = now - gwExp;
 
             if (now >= gwExp) {
                 this.finnish(
                     client,
-                    giveawayId,
-                    drop_all_db[giveawayId].guildId,
-                    drop_all_db[giveawayId].channelId
+                    drop_all_db[giveawayId].giveawayId,
+                    drop_all_db[giveawayId].giveawayData.guildId,
+                    drop_all_db[giveawayId].giveawayData.channelId
                 );
             };
 

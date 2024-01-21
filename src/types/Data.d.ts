@@ -4,7 +4,7 @@ export interface Data {
 }
 
 export interface Fetch {
-    entries: string | any[];
+    entries: string | string[];
     winners: string | string[];
 }
 

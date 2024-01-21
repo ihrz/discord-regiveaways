@@ -7,7 +7,6 @@ if (!fs.existsSync(path)) {
 };
 
 class db {
-
     private getFilePath(giveawayId: string): string {
         return `${path}/${giveawayId}.json`;
     }
@@ -45,9 +44,9 @@ class db {
         return [];
     }
 
-    GetGiveawayData(giveawayId: string): Giveaway | null {
+    GetGiveawayData(giveawayId: string): Giveaway {
         const giveaway = this.readGiveawayFile(giveawayId);
-        return giveaway ? giveaway : null;
+        return giveaway ? giveaway : undefined;
     }
 
     Create(giveaway: Giveaway, giveawayId: string) {
@@ -66,15 +65,15 @@ class db {
         return 'OK';
     }
 
-    GetAllGiveawaysData(): Giveaway[] {
+    GetAllGiveawaysData(): { giveawayId: string; giveawayData: Giveaway }[] {
         const giveawayFiles = fs.readdirSync(path);
-        const allGiveaways: Giveaway[] = [];
+        const allGiveaways: { giveawayId: string; giveawayData: Giveaway }[] = [];
 
         giveawayFiles.forEach((file) => {
             const giveawayId = file.replace('.json', '');
             const giveawayData = this.readGiveawayFile(giveawayId);
             if (giveawayData) {
-                allGiveaways.push(giveawayData);
+                allGiveaways.push({ giveawayId, giveawayData });
             }
         });
 
