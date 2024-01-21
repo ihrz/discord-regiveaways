@@ -4,7 +4,7 @@ import {
     ButtonInteraction
 } from "discord.js";
 
-import db from "./db.old.js";
+import db from "./db.js";
 
 async function AddEntries(interaction: ButtonInteraction<CacheType>) {
 

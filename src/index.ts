@@ -16,7 +16,7 @@ import { Giveaway } from './types/GiveawayData';
 import { Data } from './types/Data';
 
 import * as date from 'date-and-time';
-import db from './db.old.js';
+import db from './db.js';
 
 
 
