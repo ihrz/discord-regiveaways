@@ -8,17 +8,19 @@ class db {
 
     }
 
-    RemoveEntries(giveawayId: string, user: string): any {
+    RemoveEntries(giveawayId: string, user: string): string[] {
         let members = this.GetEntries(giveawayId);
-        
+
         function arraySub(arr: Array<string>, value: string) {
             return arr.filter(function (toSub) {
                 return toSub != value;
             });
         };
 
-        arraySub(members, user)
+        let now_members = arraySub(members, user)
         // do something with arraySub
+
+        return now_members
     }
 
     GetEntries(giveawayId: string): string[] {

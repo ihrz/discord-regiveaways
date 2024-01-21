@@ -32,16 +32,7 @@ async function AddEntries(interaction: ButtonInteraction<CacheType>) {
 
 async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
 
-    let members = db.GetEntries(interaction.message.id);
-
-    function arraySub(arr: Array<string>, value: string) {
-        return arr.filter(function (toSub) {
-            return toSub != value;
-        });
-    };
-
-    db.RemoveEntries(interaction.message.id, interaction.user.id)
-    // db.set(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`, arraySub(members, interaction.user.id));
+    let now_members = db.RemoveEntries(interaction.message.id, interaction.user.id)
 
     await interaction.reply({
         content: `${interaction.user} you have leave this giveaways !`,
@@ -52,7 +43,7 @@ async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
 
     let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
         .setDescription(interaction.message.embeds[0]?.description!
-            .replace(regex, `Entries: **${arraySub(members, interaction.user.id).length}**`)
+            .replace(regex, `Entries: **${now_members.length}**`)
         );
 
     await interaction.message.edit({ embeds: [embedsToEdit] });
@@ -62,4 +53,4 @@ async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
 export default {
     RemoveEntries,
     AddEntries
-}
+};
