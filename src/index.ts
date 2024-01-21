@@ -34,13 +34,10 @@ class GiveawayManager extends EventEmitter {
         this.client = client;
         this.options = options;
 
-        // GiveawaysManager_Init(client: Client) {
-        //     Refresh(client);
-        //     setInterval(() => {
-        //         Refresh(client);
-        //     }, 4500);
-        // };
-
+        this.refresh(client);
+        setInterval(() => {
+            this.refresh(client);
+        }, 4500);
     }
 
     async create(channel: TextBasedChannel, data: Giveaway) {
@@ -85,7 +82,6 @@ class GiveawayManager extends EventEmitter {
     async addEntries(interaction: ButtonInteraction<CacheType>) {
 
         let members = db.GetGiveawayData(interaction.message.id).entries;
-        console.log(members)
 
         if (members.includes(interaction.user.id)) {
             this.removeEntries(interaction);
