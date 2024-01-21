@@ -111,14 +111,14 @@ async function Finnish(client: Client, giveawayId: string, guildId: string, chan
 
     if (!fetch.ended === true || fetch.ended === 'End()') {
         let guild = await client.guilds.fetch(guildId).catch(async () => {
-            // db.delete(`GIVEAWAYS.${guildId}`);
+            db.DeleteGiveaway(giveawayId)
         });
         if (!guild) return;
 
         let channel = await guild.channels.fetch(channelId);
 
         let message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
-            // db.delete(`GIVEAWAYS.${guildId}.${channelId}.${giveawayId}`);
+            db.DeleteGiveaway(giveawayId)
             return;
         }) as Message;
 
@@ -170,8 +170,7 @@ async function Reroll(client: Client, giveawayId: string) {
     let channel = await guild.channels.fetch(fetch.channelId);
 
     let message = await (channel as BaseGuildTextChannel).messages.fetch(giveawayId).catch(async () => {
-        // db.
-        // db.delete(`GIVEAWAYS.${data.guildId}.${channel?.id}.${data.messageId}`);
+        db.DeleteGiveaway(giveawayId)
         return;
     }) as Message;
 
@@ -286,5 +285,6 @@ export {
     Create,
     End,
     Finnish,
-    Reroll
+    Reroll,
+    ListEntries
 };
