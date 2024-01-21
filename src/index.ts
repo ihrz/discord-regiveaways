@@ -70,7 +70,7 @@ class GiveawayManager extends EventEmitter {
 
         let confirm = new ButtonBuilder()
             .setCustomId('confirm-entry-giveaway')
-            .setEmoji('🎉')
+            .setEmoji(this.options.config.reaction)
             .setStyle(ButtonStyle.Primary);
 
         let gw = new EmbedBuilder()
