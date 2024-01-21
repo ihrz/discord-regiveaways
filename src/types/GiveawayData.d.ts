@@ -1,5 +1,3 @@
-import { User } from "discord.js";
-
 interface Giveaway {
     isValid: boolean;
     guildId: string;
@@ -8,9 +6,9 @@ interface Giveaway {
     duration?: number;
     prize: string;
     winnerCount: number;
-    hostedBy: User;
+    hostedBy: string;
     ended?: boolean | string;
-    expireIn: number;
+    expireIn: Date;
     winners: string[] | string;
 }
 

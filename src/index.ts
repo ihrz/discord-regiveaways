@@ -57,7 +57,7 @@ class GiveawayManager extends EventEmitter {
         let gw = new EmbedBuilder()
             .setColor('#9a5af2')
             .setTitle(data.prize)
-            .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: ${data.hostedBy}\nEntries: **0**\nWinners: **${data.winnerCount}**`)
+            .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
             .setTimestamp((date.addMilliseconds(new Date(), data.duration)));
 
         let response = await channel.send({
@@ -76,7 +76,7 @@ class GiveawayManager extends EventEmitter {
                 winnerCount: data.winnerCount,
                 prize: data.prize,
                 hostedBy: data.hostedBy,
-                expireIn: (date.addMilliseconds(new Date(), data.duration) as unknown as number),
+                expireIn: date.addMilliseconds(new Date(), data.duration),
                 ended: false,
                 entries: [],
                 winners: [],
