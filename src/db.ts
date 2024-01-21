@@ -3,6 +3,9 @@ import { Giveaway } from "./types/GiveawayData";
 import { Guild, User } from "discord.js";
 
 let path = `${__dirname}/giveaways`;
+if (!fs.existsSync(path)) {
+    fs.mkdirSync(path);
+};
 
 class db {
 

@@ -25,7 +25,10 @@ import { deepmerge } from 'deepmerge-ts';
 class GiveawayManager extends EventEmitter {
     client: Client;
     options: Options;
-
+    entries: Entries;
+    checker: Checker;
+    execution: Execution;
+    
     constructor(client: Client, options: Options) {
         super();
 
