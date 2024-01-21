@@ -56,12 +56,14 @@ class db {
     SetEnded(giveawayId: string, state: boolean | string) {
         const giveaway = this.readGiveawayFile(giveawayId);
         giveaway.ended = state;
+        this.writeGiveawayFile(giveawayId, giveaway);
         return 'OK';
     }
 
     SetWinners(giveawayId: string, winners: string[] | string) {
         const giveaway = this.readGiveawayFile(giveawayId);
         giveaway.winners = winners;
+        this.writeGiveawayFile(giveawayId, giveaway);
         return 'OK';
     }
 
