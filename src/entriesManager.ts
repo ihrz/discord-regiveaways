@@ -8,7 +8,7 @@ import db from "./db.js";
 
 async function AddEntries(interaction: ButtonInteraction<CacheType>) {
 
-    let members = db.GetEntries(interaction.message.id);
+    let members = db.GetGiveawayData(interaction.message.id).entries;
 
     if (members.includes(interaction.user.id)) {
         RemoveEntries(interaction);

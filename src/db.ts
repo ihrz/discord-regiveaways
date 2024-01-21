@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { Giveaway } from "./types/GiveawayData";
-import { User } from "discord.js";
+import { Guild, User } from "discord.js";
 
 let path = `${__dirname}/giveaways`;
 
@@ -43,26 +43,16 @@ class db {
         return [];
     }
 
-    GetEntries(giveawayId: string): string[] {
+    GetGiveawayData(giveawayId: string): Giveaway {
         const giveaway = this.readGiveawayFile(giveawayId);
-        return giveaway ? giveaway.entries : [];
-    }
-
-    IsValid(giveawayId: string): boolean {
-        const giveaway = this.readGiveawayFile(giveawayId);
-        return giveaway ? giveaway.isValid : false;
-    }
-
-    IsEnded(giveawayId: string): boolean | string {
-        const giveaway = this.readGiveawayFile(giveawayId);
-        return giveaway ? giveaway.ended : false;
+        return giveaway;
     }
 
     Create(giveaway: Giveaway, giveawayId: string) {
         this.writeGiveawayFile(giveawayId, giveaway);
     }
 
-    SetEnded(giveawayId: string, state: boolean) {
+    SetEnded(giveawayId: string, state: boolean | string) {
         const giveaway = this.readGiveawayFile(giveawayId);
         giveaway.ended = state;
         return 'OK';

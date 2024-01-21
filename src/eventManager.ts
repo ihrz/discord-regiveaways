@@ -7,6 +7,7 @@ import {
     TextBasedChannel,
     Message,
     GuildTextBasedChannel,
+    Client,
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
@@ -29,12 +30,17 @@ async function Create(channel: TextBasedChannel, data: Giveaway) {
 
     let response = await channel.send({
         embeds: [gw],
-        components: [new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(confirm)]
+        components: [
+            new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(confirm)
+        ]
     });
 
     db.Create(
         {
+            channelId: response.channelId,
+            guildId: response.guildId,
+
             winnerCount: data.winnerCount,
             prize: data.prize,
             hostedBy: data.hostedBy,
@@ -48,27 +54,25 @@ async function Create(channel: TextBasedChannel, data: Giveaway) {
     return;
 };
 
-function End(giveawayId: string) {
+function End(client: Client, giveawayId: string) {
 
-    let fetch = db.IsValid(giveawayId)
+    let fetch = db.GetGiveawayData(giveawayId).isValid
 
-    if (fetch && !db.IsEnded(giveawayId)) {
-        //     await db.set(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`, 'End()');
+    if (fetch && !db.GetGiveawayData(giveawayId).ended) {
+        db.SetEnded(giveawayId, "End()");
 
-        //     Finnish(
-        //         client,
-        //         messageId,
-        //         data.guildId as string,
-        //         channelId
-        //     );
+        Finnish(
+            client,
+            giveawayId,
+            db.GetGiveawayData(giveawayId).guildId,
+            db.GetGiveawayData(giveawayId).channelId,
+        );
     } else return 404;
 };
 
-async function Finnish(client: Client, messageId: string, guildId: string, channelId: string) {
+async function Finnish(client: Client, giveawayId: string, guildId: string, channelId: string) {
 
-    let fetch = await db.get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
-
-    if (!db.IsEnded(messageId) === true || db.IsEnded(messageId) === 'End()') {
+    if (!db.GetGiveawayData(giveawayId).ended === true || db.GetGiveawayData(giveawayId).ended === 'End()') {
         let guild = await client.guilds.fetch(guildId).catch(async () => {
             db.delete(`GIVEAWAYS.${guildId}`);
         });
@@ -76,14 +80,14 @@ async function Finnish(client: Client, messageId: string, guildId: string, chann
 
         let channel = await guild.channels.fetch(channelId);
 
-        let message = await (channel as GuildTextBasedChannel).messages.fetch(messageId).catch(async () => {
-            db.delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
+        let message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
+            db.delete(`GIVEAWAYS.${guildId}.${channelId}.${giveawayId}`);
             return;
         }) as Message;
 
         let winner = SelectWinners(
             fetch,
-            fetch.winnerCount
+            db.GetGiveawayData(giveawayId).winnerCount
         );
 
         let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
@@ -123,5 +127,10 @@ async function Finnish(client: Client, messageId: string, guildId: string, chann
 
 export {
     Create,
-    End
+    End,
+    Finnish
 };
+
+function SelectWinners(fetch: { (input: RequestInfo | URL, init?: RequestInit): Promise<Response>; (input: string | Request | URL, init?: RequestInit): Promise<Response>; }, arg1: number) {
+    throw new Error('Function not implemented.');
+}
