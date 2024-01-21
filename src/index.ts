@@ -56,7 +56,7 @@ class GiveawayManager extends EventEmitter {
             .setStyle(ButtonStyle.Primary);
 
         let gw = new EmbedBuilder()
-            .setColor('#9a5af2')
+            .setColor(this.options.config.embedColor)
             .setTitle(data.prize)
             .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
             .setTimestamp((date.addMilliseconds(new Date(), data.duration)))
@@ -198,7 +198,7 @@ class GiveawayManager extends EventEmitter {
                 .setStyle(ButtonStyle.Link);
 
             let embeds = new EmbedBuilder()
-                .setColor('#2f3136')
+                .setColor(this.options.config.embedColorEnd)
                 .setTitle(fetch.prize)
                 .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
                 .setTimestamp()
@@ -278,10 +278,12 @@ class GiveawayManager extends EventEmitter {
         let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
 
         let embeds = new EmbedBuilder()
-            .setColor('#2f3136')
+            .setColor(this.options.config.embedColorEnd)
             .setTitle(fetch.prize)
+            .setImage(fetch.embedImageURL)
             .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
             .setTimestamp()
+            .setFooter({ text: this.options.config.botName });
 
         await message?.edit({
             embeds: [embeds]
@@ -327,7 +329,7 @@ class GiveawayManager extends EventEmitter {
 
             let createEmbed = () => {
                 return new EmbedBuilder()
-                    .setColor("#800080")
+                    .setColor(this.options.config.embedColor)
                     .setTitle(pages[currentPage].title)
                     .setDescription(pages[currentPage].description)
                     .setFooter({ text: `${this.options.config.botName} | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
@@ -394,7 +396,7 @@ class GiveawayManager extends EventEmitter {
                 );
             };
 
-            if (cooldownTime >= 345_600_000) {
+            if (cooldownTime >= this.options.config.endedGiveawaysLifetime) {
                 db.DeleteGiveaway(drop_all_db[giveawayId].giveawayId)
             };
         }
