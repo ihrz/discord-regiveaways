@@ -11,7 +11,8 @@ import {
     TextBasedChannel,
     Message,
     ButtonInteraction,
-    CacheType
+    CacheType,
+    ColorResolvable
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
@@ -21,33 +22,50 @@ import { EventEmitter } from 'node:events';
 import * as date from 'date-and-time';
 import db from './db.js';
 
-import { GiveawaysManagerOptions, giveawaysManagerOptions } from './Constants';
+import { deepmerge } from 'deepmerge-ts';
+
+interface GiveawaysManagerOptions {
+    storage?: string,
+    config?: {
+        botsCanWin: boolean,
+        embedColor: string,
+        embedColorEnd: string,
+        reaction: string,
+        botName: string,
+        forceUpdateEvery: number,
+        endedGiveawaysLifetime: number,
+    },
+};
 
 class GiveawayManager extends EventEmitter {
     client: Client;
     options: GiveawaysManagerOptions;
 
-    constructor(client: Client, options: Partial<GiveawaysManagerOptions>) {
+    constructor(client: Client, options?: GiveawaysManagerOptions) {
         super();
         if (!client.options) {
             throw new Error(`Client is a required option. (val=${client})`);
         }
 
-        this.options = {
-            ...giveawaysManagerOptions,
-            ...(options || {}),
+        this.options = deepmerge({
+            storage: './giveaways.json',
             config: {
-                ...giveawaysManagerOptions.config,
-                ...(options?.config || {}),
+                botsCanWin: false,
+                embedColor: '#9a5af2',
+                embedColorEnd: '#2f3136',
+                reaction: '🎉',
+                botName: "Giveaway Bot",
+                forceUpdateEvery: 3600,
+                endedGiveawaysLifetime: 345_600_000,
             },
-        };
+        }, options || {});
 
         this.refresh(client);
         setInterval(() => {
             this.refresh(client);
         }, 4500);
     }
-
+    
     async create(channel: TextBasedChannel, data: Giveaway) {
 
         let confirm = new ButtonBuilder()
@@ -56,7 +74,7 @@ class GiveawayManager extends EventEmitter {
             .setStyle(ButtonStyle.Primary);
 
         let gw = new EmbedBuilder()
-            .setColor(this.options.config.embedColor)
+            .setColor(this.options.config.embedColor as ColorResolvable)
             .setTitle(data.prize)
             .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
             .setTimestamp((date.addMilliseconds(new Date(), data.duration)))
@@ -198,7 +216,7 @@ class GiveawayManager extends EventEmitter {
                 .setStyle(ButtonStyle.Link);
 
             let embeds = new EmbedBuilder()
-                .setColor(this.options.config.embedColorEnd)
+                .setColor(this.options.config.embedColorEnd as ColorResolvable)
                 .setTitle(fetch.prize)
                 .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
                 .setTimestamp()
@@ -278,7 +296,7 @@ class GiveawayManager extends EventEmitter {
         let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
 
         let embeds = new EmbedBuilder()
-            .setColor(this.options.config.embedColorEnd)
+            .setColor(this.options.config.embedColorEnd as ColorResolvable)
             .setTitle(fetch.prize)
             .setImage(fetch.embedImageURL)
             .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
@@ -329,7 +347,7 @@ class GiveawayManager extends EventEmitter {
 
             let createEmbed = () => {
                 return new EmbedBuilder()
-                    .setColor(this.options.config.embedColor)
+                    .setColor(this.options.config.embedColor as ColorResolvable)
                     .setTitle(pages[currentPage].title)
                     .setDescription(pages[currentPage].description)
                     .setFooter({ text: `${this.options.config.botName} | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
