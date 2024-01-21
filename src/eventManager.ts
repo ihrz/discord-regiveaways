@@ -9,6 +9,7 @@ import {
     GuildTextBasedChannel,
     Client,
     BaseGuildTextChannel,
+    ChatInputCommandInteraction,
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
@@ -110,14 +111,14 @@ async function Finnish(client: Client, giveawayId: string, guildId: string, chan
 
     if (!fetch.ended === true || fetch.ended === 'End()') {
         let guild = await client.guilds.fetch(guildId).catch(async () => {
-            db.delete(`GIVEAWAYS.${guildId}`);
+            // db.delete(`GIVEAWAYS.${guildId}`);
         });
         if (!guild) return;
 
         let channel = await guild.channels.fetch(channelId);
 
         let message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
-            db.delete(`GIVEAWAYS.${guildId}.${channelId}.${giveawayId}`);
+            // db.delete(`GIVEAWAYS.${guildId}.${channelId}.${giveawayId}`);
             return;
         }) as Message;
 
@@ -203,6 +204,82 @@ async function Reroll(client: Client, giveawayId: string) {
 
     db.SetWinners(giveawayId, winner || 'None')
     return;
+};
+
+async function ListEntries(interaction: ChatInputCommandInteraction, giveawayId: string) {
+    let fetch = db.GetGiveawayData(giveawayId);
+
+    if (interaction.guildId === fetch.guildId) {
+        var char: Array<string> = fetch.entries;
+
+        if (char.length == 0) {
+            await interaction.editReply({ content: "There is no entry into this competition." });
+            return;
+        };
+
+        let currentPage = 0;
+        let usersPerPage = 10;
+        let pages: { title: string; description: string; }[] = [];
+
+        for (let i = 0; i < char.length; i += usersPerPage) {
+            let pageUsers = char.slice(i, i + usersPerPage);
+            let pageContent = pageUsers.map((userId) => `<@${userId}>`).join('\n');
+            pages.push({
+                title: `Giveaway's Entries List | Page ${i / usersPerPage + 1}`,
+                description: pageContent,
+            });
+        };
+
+        let createEmbed = () => {
+            return new EmbedBuilder()
+                .setColor("#800080")
+                .setTitle(pages[currentPage].title)
+                .setDescription(pages[currentPage].description)
+                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
+                .setTimestamp()
+        };
+
+        let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('previousPage')
+                .setLabel('⬅️')
+                .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
+                .setCustomId('nextPage')
+                .setLabel('➡️')
+                .setStyle(ButtonStyle.Secondary),
+        );
+
+        let messageEmbed = await interaction.editReply({
+            embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
+        });
+
+        let collector = messageEmbed.createMessageComponentCollector({
+            filter: (i) => {
+                i.deferUpdate();
+                return interaction.user.id === i.user.id;
+            }, time: 60000
+        });
+
+        collector.on('collect', (interaction: { customId: string; }) => {
+            if (interaction.customId === 'previousPage') {
+                currentPage = (currentPage - 1 + pages.length) % pages.length;
+            } else if (interaction.customId === 'nextPage') {
+                currentPage = (currentPage + 1) % pages.length;
+            }
+
+            messageEmbed.edit({ embeds: [createEmbed()] });
+        });
+
+        collector.on('end', () => {
+            row.components.forEach((component) => {
+                if (component instanceof ButtonBuilder) {
+                    component.setDisabled(true);
+                }
+            });
+            messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
+        });
+    };
 };
 
 export {

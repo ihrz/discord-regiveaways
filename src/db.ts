@@ -64,17 +64,31 @@ class db {
         return 'OK';
     }
 
-    get(params: string): any {
-        // Implémentez la logique pour récupérer les données
+    GetAllGiveawaysData(): Giveaway[] {
+        const giveawayFiles = fs.readdirSync(path);
+        const allGiveaways: Giveaway[] = [];
+
+        giveawayFiles.forEach((file) => {
+            const giveawayId = file.replace('.json', '');
+            const giveawayData = this.readGiveawayFile(giveawayId);
+            if (giveawayData) {
+                allGiveaways.push(giveawayData);
+            }
+        });
+
+        return allGiveaways;
     }
 
-    set(params: string, to: any): any {
-        // Implémentez la logique pour définir les données
-    }
+    DeleteGiveaway(giveawayId: string) {
+        const filePath = this.getFilePath(giveawayId);
 
-    delete(params: string): any {
-        // Implémentez la logique pour supprimer des données
+        try {
+            fs.unlinkSync(filePath);
+            console.log(`Giveaway ${giveawayId} deleted successfully.`);
+        } catch (error) {
+            console.error(`Error deleting giveaway ${giveawayId}: ${error}`);
+        }
     }
-}
+};
 
 export default new db();
