@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { Giveaway } from "./types/GiveawayData";
 import { User } from "discord.js";
 
@@ -5,50 +6,72 @@ let path = `${__dirname}/giveaways`;
 
 class db {
 
-    AddEntries(giveawayId: string, user: string){
-
+    private getFilePath(giveawayId: string): string {
+        return `${path}/${giveawayId}.json`;
     }
 
-    RemoveEntries(giveawayId: string, user: string): string[] {
-        let members = this.GetEntries(giveawayId);
+    private readGiveawayFile(giveawayId: string): Giveaway | null {
+        const filePath = this.getFilePath(giveawayId);
+        try {
+            const data = fs.readFileSync(filePath, 'utf-8');
+            return JSON.parse(data) as Giveaway;
+        } catch (error) {
+            return null;
+        }
+    }
 
-        function arraySub(arr: Array<string>, value: string) {
-            return arr.filter(function (toSub) {
-                return toSub != value;
-            });
-        };
+    private writeGiveawayFile(giveawayId: string, data: Giveaway) {
+        const filePath = this.getFilePath(giveawayId);
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    }
 
-        let now_members = arraySub(members, user)
-        // do something with arraySub
+    AddEntries(giveawayId: string, user: string) {
+        const giveaway = this.readGiveawayFile(giveawayId);
+        if (giveaway) {
+            giveaway.entries.push(user);
+            this.writeGiveawayFile(giveawayId, giveaway);
+        }
+    }
 
-        return now_members
+    RemoveEntries(giveawayId: string, userId: string): string[] {
+        const giveaway = this.readGiveawayFile(giveawayId);
+        if (giveaway) {
+            giveaway.entries = giveaway.entries.filter((entry: string) => entry !== userId);
+            this.writeGiveawayFile(giveawayId, giveaway);
+            return giveaway.entries;
+        }
+        return [];
     }
 
     GetEntries(giveawayId: string): string[] {
-        const entries: string[] = ["Entry1", "Entry2", "Entry3"];
-        return entries;
+        const giveaway = this.readGiveawayFile(giveawayId);
+        return giveaway ? giveaway.entries : [];
     }
 
     IsValid(giveawayId: string): boolean {
-        // todo: the logic
-        const isValid: boolean = true;
-        return isValid;
+        const giveaway = this.readGiveawayFile(giveawayId);
+        return giveaway ? giveaway.isValid : false;
     }
 
     Create(giveaway: Giveaway, giveawayId: string) {
+        this.writeGiveawayFile(giveawayId, giveaway);
     }
 
     get(params: string): any {
+        // Implémentez la logique pour récupérer les données
     }
 
     set(params: string, to: any): any {
+        // Implémentez la logique pour définir les données
     }
 
     push(params: string, to: any): any {
+        // Implémentez la logique pour ajouter des données à un tableau
     }
 
     delete(params: string): any {
+        // Implémentez la logique pour supprimer des données
     }
-};
+}
 
 export default new db();

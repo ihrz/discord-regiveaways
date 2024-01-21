@@ -7,7 +7,7 @@ import {
 import {
     Data
 } from "./types/Data";
-import db from "./db.js";
+import db from "./db.old.js";
 
 async function isValid(giveawayId: number) {
     // let fetch = await db.get();

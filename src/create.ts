@@ -15,7 +15,7 @@ import {
 import { Giveaway } from './types/GiveawayData';
 
 import * as date from 'date-and-time';
-import db from './db.js';
+import db from './db.old.js';
 
 async function Create(channel: TextBasedChannel, data: Giveaway) {
 
@@ -36,13 +36,24 @@ async function Create(channel: TextBasedChannel, data: Giveaway) {
             .addComponents(confirm)]
     });
 
-    db.Create({
-        winnerCount: data.winnerCount,
-        prize: data.prize,
-        hostedBy: data.hostedBy,
-        expireIn: (date.addMilliseconds(new Date(), data.duration) as unknown as number),
-        ended: false,
-    }, response.id)
+    db.Create(
+        {
+            winnerCount: data.winnerCount,
+            prize: data.prize,
+            hostedBy: data.hostedBy,
+            expireIn: (date.addMilliseconds(new Date(), data.duration) as unknown as number),
+            ended: false,
+            entries: [],
+            isValid: true
+        }, response.id
+    )
+    // db.Create({
+    //     winnerCount: data.winnerCount,
+    //     prize: data.prize,
+    //     hostedBy: data.hostedBy,
+    //     expireIn: (date.addMilliseconds(new Date(), data.duration) as unknown as number),
+    //     ended: false,
+    // }, response.id)
 
     return;
 };
