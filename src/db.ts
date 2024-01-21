@@ -1,6 +1,5 @@
-import * as fs from 'fs';
 import { Giveaway } from "./types/GiveawayData";
-import { Guild, User } from "discord.js";
+import * as fs from 'fs';
 
 let path = `${__dirname}/giveaways`;
 if (!fs.existsSync(path)) {

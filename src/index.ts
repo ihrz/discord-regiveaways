@@ -15,12 +15,11 @@ import {
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
-import { Data, Fetch, Options } from './types/Data';
+import { Fetch, Options } from './types/Data';
 
+import { EventEmitter } from 'node:events';
 import * as date from 'date-and-time';
 import db from './db.js';
-import { EventEmitter } from 'node:events';
-import { deepmerge } from 'deepmerge-ts';
 
 class GiveawayManager extends EventEmitter {
     client: Client;
@@ -28,7 +27,7 @@ class GiveawayManager extends EventEmitter {
     entries: Entries;
     checker: Checker;
     execution: Execution;
-    
+
     constructor(client: Client, options: Options) {
         super();
 
