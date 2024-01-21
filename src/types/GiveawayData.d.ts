@@ -9,6 +9,7 @@ interface Giveaway {
     hostedBy: User;
     ended?: boolean;
     expireIn: number;
+    winners: string[];
 }
 
 export {

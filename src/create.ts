@@ -4,12 +4,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ActionRowBuilder,
-    Client,
-    BaseGuildTextChannel,
-    GuildTextBasedChannel,
-    ChatInputCommandInteraction,
     TextBasedChannel,
-    Message
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
@@ -44,7 +39,8 @@ async function Create(channel: TextBasedChannel, data: Giveaway) {
             expireIn: (date.addMilliseconds(new Date(), data.duration) as unknown as number),
             ended: false,
             entries: [],
-            isValid: true
+            winners: [],
+            isValid: true,
         }, response.id
     )
     return;

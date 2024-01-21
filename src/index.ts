@@ -18,9 +18,6 @@ import { Data } from './types/Data';
 import * as date from 'date-and-time';
 import db from './db.js';
 
-
-
-
 async function End(client: Client, data: Data) {
 
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
