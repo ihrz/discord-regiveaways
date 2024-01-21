@@ -58,7 +58,10 @@ class db {
         return 'OK';
     }
 
-    SetWinners(giveawayId: string, winners: string[]) {
+    SetWinners(giveawayId: string, winners: string[] | string) {
+        const giveaway = this.readGiveawayFile(giveawayId);
+        giveaway.winners = winners;
+        return 'OK';
     }
 
     get(params: string): any {

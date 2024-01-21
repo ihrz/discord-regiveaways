@@ -11,7 +11,7 @@ interface Giveaway {
     hostedBy: User;
     ended?: boolean | string;
     expireIn: number;
-    winners: string[];
+    winners: string[] | string;
 }
 
 export {

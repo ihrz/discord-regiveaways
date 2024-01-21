@@ -14,6 +14,7 @@ import { Giveaway } from './types/GiveawayData';
 
 import * as date from 'date-and-time';
 import db from './db.js';
+import { Fetch } from './types/Data';
 
 async function Create(channel: TextBasedChannel, data: Giveaway) {
 
@@ -71,8 +72,9 @@ function End(client: Client, giveawayId: string) {
 };
 
 async function Finnish(client: Client, giveawayId: string, guildId: string, channelId: string) {
+    let fetch = db.GetGiveawayData(giveawayId);
 
-    if (!db.GetGiveawayData(giveawayId).ended === true || db.GetGiveawayData(giveawayId).ended === 'End()') {
+    if (!fetch.ended === true || fetch.ended === 'End()') {
         let guild = await client.guilds.fetch(guildId).catch(async () => {
             db.delete(`GIVEAWAYS.${guildId}`);
         });
@@ -86,8 +88,8 @@ async function Finnish(client: Client, giveawayId: string, guildId: string, chan
         }) as Message;
 
         let winner = SelectWinners(
-            fetch,
-            db.GetGiveawayData(giveawayId).winnerCount
+            { entries: fetch.entries, winners: fetch.winners },
+            fetch.winnerCount
         );
 
         let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
@@ -100,7 +102,7 @@ async function Finnish(client: Client, giveawayId: string, guildId: string, chan
         let embeds = new EmbedBuilder()
             .setColor('#2f3136')
             .setTitle(fetch.prize)
-            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winners}`)
+            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
             .setTimestamp()
 
         await message?.edit({
@@ -119,8 +121,8 @@ async function Finnish(client: Client, giveawayId: string, guildId: string, chan
             });
         };
 
-        db.SetEnded(messageId, true)
-        db.SetWinners(messageId, winner || 'None')
+        db.SetEnded(giveawayId, true)
+        db.SetWinners(giveawayId, winner || 'None')
     };
     return;
 };
@@ -131,6 +133,35 @@ export {
     Finnish
 };
 
-function SelectWinners(fetch: { (input: RequestInfo | URL, init?: RequestInit): Promise<Response>; (input: string | Request | URL, init?: RequestInit): Promise<Response>; }, arg1: number) {
-    throw new Error('Function not implemented.');
-}
+function SelectWinners(fetch: Fetch, number: number): string[] {
+    if (fetch.entries.length === 0) {
+        return undefined;
+    };
+
+    let areWinnersInPreviousWinners = (currentWinners: string[]) => {
+        return currentWinners.some(winner => fetch.winners.includes(winner));
+    };
+
+    let winners: Array<string> = [];
+
+    do {
+        winners = [];
+        let availableMembers = [...fetch.entries];
+
+        if (winners.length === 0 || areWinnersInPreviousWinners(winners)) {
+            winners = [];
+        };
+
+        for (let i = 0; i < number; i++) {
+            if (availableMembers.length === 0) {
+                break;
+            }
+
+            let randomIndex = Math.floor(Math.random() * availableMembers.length);
+            let winnerID = availableMembers.splice(randomIndex, 1)[0];
+            winners.push(winnerID);
+        }
+    } while (winners.length === 0);
+
+    return winners.length > 0 ? winners : undefined;
+};
