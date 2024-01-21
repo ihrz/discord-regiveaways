@@ -43,9 +43,9 @@ class db {
         return [];
     }
 
-    GetGiveawayData(giveawayId: string): Giveaway {
+    GetGiveawayData(giveawayId: string): Giveaway | null {
         const giveaway = this.readGiveawayFile(giveawayId);
-        return giveaway;
+        return giveaway ? giveaway : null;
     }
 
     Create(giveaway: Giveaway, giveawayId: string) {
@@ -70,10 +70,6 @@ class db {
 
     set(params: string, to: any): any {
         // Implémentez la logique pour définir les données
-    }
-
-    push(params: string, to: any): any {
-        // Implémentez la logique pour ajouter des données à un tableau
     }
 
     delete(params: string): any {
