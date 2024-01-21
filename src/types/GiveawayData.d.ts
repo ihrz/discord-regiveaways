@@ -1,9 +1,11 @@
 import { User } from "discord.js";
 
 export interface Giveaway {
-    duration: number;
+    duration?: number;
     prize: string;
     winnerCount: number;
-    hostedBy: User
-    ended?: boolean
+    hostedBy: User;
+    ended?: boolean;
+    expireIn: number;
+    members?: string[] | []
 }

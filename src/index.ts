@@ -13,41 +13,11 @@ import {
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
+import { Data } from './types/Data';
+
 import * as date from 'date-and-time';
 import db from './db.js';
 
-async function Create(channel: TextBasedChannel, data: Giveaway) {
-
-    let confirm = new ButtonBuilder()
-        .setCustomId('confirm-entry-giveaway')
-        .setEmoji('🎉')
-        .setStyle(ButtonStyle.Primary);
-
-    let gw = new EmbedBuilder()
-        .setColor('#9a5af2')
-        .setTitle(data.prize)
-        .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: ${data.hostedBy}\nEntries: **0**\nWinners: **${data.winnerCount}**`)
-        .setTimestamp((date.addMilliseconds(new Date(), data.duration)));
-
-    let response = await channel.send({
-        embeds: [gw],
-        components: [new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(confirm)]
-    });
-
-    await db.set(`GIVEAWAYS.${(channel as GuildTextBasedChannel).guildId}.${channel.id}.${response.id}`,
-        {
-            winnerCount: data.winnerCount,
-            prize: data.prize,
-            hostedBy: data.hostedBy.id,
-            expireIn: date.addMilliseconds(new Date(), data.duration),
-            ended: false,
-            members: []
-        }
-    );
-
-    return;
-};
 
 
 
@@ -173,10 +143,6 @@ async function Finnish(client: Client, messageId: string, guildId: string, chann
     return;
 };
 
-interface Data {
-    guildId?: string;
-    messageId?: string;
-};
 
 async function Reroll(client: Client, data: Data) {
 
@@ -357,7 +323,6 @@ async function ListEntries(interaction: ChatInputCommandInteraction, data: Data)
 export {
     GiveawaysManager_Init,
 
-    Create,
     Reroll,
     End,
 

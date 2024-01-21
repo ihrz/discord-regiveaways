@@ -1,3 +1,4 @@
+import { Giveaway } from "./types/GiveawayData";
 import { User } from "discord.js";
 
 let path = `${__dirname}/giveaways`;
@@ -32,6 +33,9 @@ class db {
         // todo: the logic
         const isValid: boolean = true;
         return isValid;
+    }
+
+    Create(giveaway: Giveaway, giveawayId: string) {
     }
 
     get(params: string): any {
