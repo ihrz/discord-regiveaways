@@ -15,24 +15,32 @@ import {
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
-import { Fetch, Options } from './types/Data';
+import { Fetch } from './types/Data';
 
 import { EventEmitter } from 'node:events';
 import * as date from 'date-and-time';
 import db from './db.js';
 
+import { GiveawaysManagerOptions, giveawaysManagerOptions } from './Constants';
+
 class GiveawayManager extends EventEmitter {
     client: Client;
-    options: Options;
-    constructor(client: Client, options: Options) {
-        super();
+    options: GiveawaysManagerOptions;
 
-        if (!client?.options) {
+    constructor(client: Client, options: Partial<GiveawaysManagerOptions>) {
+        super();
+        if (!client.options) {
             throw new Error(`Client is a required option. (val=${client})`);
         }
 
-        this.client = client;
-        this.options = options;
+        this.options = {
+            ...giveawaysManagerOptions,
+            ...(options || {}),
+            config: {
+                ...giveawaysManagerOptions.config,
+                ...(options?.config || {}),
+            },
+        };
 
         this.refresh(client);
         setInterval(() => {
@@ -51,7 +59,9 @@ class GiveawayManager extends EventEmitter {
             .setColor('#9a5af2')
             .setTitle(data.prize)
             .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
-            .setTimestamp((date.addMilliseconds(new Date(), data.duration)));
+            .setTimestamp((date.addMilliseconds(new Date(), data.duration)))
+            .setFooter({ text: this.options.config.botName })
+            .setImage(data.embedImageURL);
 
         let response = await channel.send({
             embeds: [gw],
@@ -320,7 +330,7 @@ class GiveawayManager extends EventEmitter {
                     .setColor("#800080")
                     .setTitle(pages[currentPage].title)
                     .setDescription(pages[currentPage].description)
-                    .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
+                    .setFooter({ text: `${this.options.config.botName} | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
                     .setTimestamp()
             };
 

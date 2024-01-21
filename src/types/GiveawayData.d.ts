@@ -2,14 +2,19 @@ interface Giveaway {
     isValid: boolean;
     guildId: string;
     channelId: string;
+
     entries: string[];
-    duration?: number;
-    prize: string;
+    winners: string[] | string;
     winnerCount: number;
+
+    prize: string;
     hostedBy: string;
     ended?: boolean | string;
+
     expireIn: Date;
-    winners: string[] | string;
+    duration?: number;
+
+    embedImageURL?: string;
 }
 
 export {
