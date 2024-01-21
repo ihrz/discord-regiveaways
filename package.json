@@ -29,6 +29,9 @@
   ],
   "author": "iHorizon Team",
   "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/ihrz"
+  },
   "bugs": {
     "url": "https://github.com/ihrz/discord-regiveaways/issues"
   },
