@@ -5,4 +5,5 @@ export interface Giveaway {
     prize: string;
     winnerCount: number;
     hostedBy: User
+    ended?: boolean
 }

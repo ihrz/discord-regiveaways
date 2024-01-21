@@ -237,42 +237,6 @@ function GiveawaysManager_Init(client: Client) {
 };
 
 
-async function isValid(giveawayId: number, data: Data) {
-    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
-
-    let dataDict: any = {};
-
-    for (let channelId in fetch) {
-        for (let messageId in fetch[channelId]) {
-            dataDict[messageId] = true;
-        }
-    };
-
-    if (dataDict[giveawayId]) {
-        return true;
-    };
-
-    return false;
-};
-
-async function isEnded(giveawayId: number, data: { guildId: string }) {
-    let fetch = db.get(`GIVEAWAYS.${data.guildId}`);
-
-    let dataDict: any = {};
-
-    for (let channelId in fetch) {
-        for (let messageId in fetch[channelId]) {
-            dataDict[messageId] = fetch[channelId][messageId].ended;
-        }
-    };
-
-    if (dataDict[giveawayId]) {
-        return true;
-    };
-
-    return false;
-};
-
 async function Refresh(client: Client) {
     let drop_all_db = await db.get(`GIVEAWAYS`);
 
@@ -392,8 +356,6 @@ async function ListEntries(interaction: ChatInputCommandInteraction, data: Data)
 
 export {
     GiveawaysManager_Init,
-    isValid,
-    isEnded,
 
     Create,
     Reroll,

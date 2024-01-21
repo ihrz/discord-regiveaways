@@ -4,7 +4,7 @@ let path = `${__dirname}/giveaways`;
 
 class db {
 
-    AddEntries(giveawayId: string, user: string): any {
+    AddEntries(giveawayId: string, user: string){
 
     }
 
@@ -26,6 +26,12 @@ class db {
     GetEntries(giveawayId: string): string[] {
         const entries: string[] = ["Entry1", "Entry2", "Entry3"];
         return entries;
+    }
+
+    IsValid(giveawayId: string): boolean {
+        // todo: the logic
+        const isValid: boolean = true;
+        return isValid;
     }
 
     get(params: string): any {
