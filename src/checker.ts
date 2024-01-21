@@ -1,12 +1,3 @@
-import {
-    EmbedBuilder,
-    CacheType,
-    ButtonInteraction
-} from "discord.js";
-
-import {
-    Data
-} from "./types/Data";
 import db from "./db.js";
 
 function isValid(giveawayId: string): boolean {
