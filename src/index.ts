@@ -24,10 +24,6 @@ import db from './db.js';
 class GiveawayManager extends EventEmitter {
     client: Client;
     options: Options;
-    entries: Entries;
-    checker: Checker;
-    execution: Execution;
-
     constructor(client: Client, options: Options) {
         super();
 
@@ -85,12 +81,11 @@ class GiveawayManager extends EventEmitter {
         )
         return;
     };
-}
 
-class Entries extends GiveawayManager {
     async addEntries(interaction: ButtonInteraction<CacheType>) {
 
         let members = db.GetGiveawayData(interaction.message.id).entries;
+        console.log(members)
 
         if (members.includes(interaction.user.id)) {
             this.removeEntries(interaction);
@@ -131,9 +126,7 @@ class Entries extends GiveawayManager {
         await interaction.message.edit({ embeds: [embedsToEdit] });
         return;
     }
-};
 
-class Checker extends GiveawayManager {
     isValid(giveawayId: string): boolean {
         let fetch = db.GetGiveawayData(giveawayId)
 
@@ -153,9 +146,6 @@ class Checker extends GiveawayManager {
             return false;
         }
     };
-};
-
-class Execution extends GiveawayManager {
 
     end(client: Client, giveawayId: string) {
 
@@ -403,6 +393,6 @@ class Execution extends GiveawayManager {
             };
         }
     };
-
 }
+
 export { GiveawayManager };
