@@ -10,9 +10,8 @@ import {
     ChatInputCommandInteraction,
     TextBasedChannel,
     Message,
-    IntentsBitField,
     ButtonInteraction,
-    CacheType,
+    CacheType
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
@@ -404,6 +403,4 @@ class Execution extends GiveawayManager {
     };
 
 }
-export {
-    GiveawayManager,
-};
+export { GiveawayManager };
