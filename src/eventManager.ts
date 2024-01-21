@@ -5,6 +5,8 @@ import {
     ButtonStyle,
     ActionRowBuilder,
     TextBasedChannel,
+    Message,
+    GuildTextBasedChannel,
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
@@ -66,7 +68,7 @@ async function Finnish(client: Client, messageId: string, guildId: string, chann
 
     let fetch = await db.get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
 
-    if (!fetch.ended === true || fetch.ended === 'End()') {
+    if (!db.IsEnded(messageId) === true || db.IsEnded(messageId) === 'End()') {
         let guild = await client.guilds.fetch(guildId).catch(async () => {
             db.delete(`GIVEAWAYS.${guildId}`);
         });
@@ -114,7 +116,6 @@ async function Finnish(client: Client, messageId: string, guildId: string, chann
         };
 
         db.SetEnded(messageId, true)
-        // db.Set
         db.SetWinners(messageId, winner || 'None')
     };
     return;

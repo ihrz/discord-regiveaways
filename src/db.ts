@@ -53,7 +53,7 @@ class db {
         return giveaway ? giveaway.isValid : false;
     }
 
-    IsEnded(giveawayId: string): boolean {
+    IsEnded(giveawayId: string): boolean | string {
         const giveaway = this.readGiveawayFile(giveawayId);
         return giveaway ? giveaway.ended : false;
     }
