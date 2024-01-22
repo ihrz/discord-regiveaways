@@ -63,7 +63,7 @@ class GiveawayManager extends EventEmitter {
         this.refresh(client);
         setInterval(() => {
             this.refresh(client);
-        }, 4500);
+        }, this.options.config.forceUpdateEvery);
     }
 
     async create(channel: TextBasedChannel, data: Giveaway) {
