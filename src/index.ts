@@ -65,7 +65,7 @@ class GiveawayManager extends EventEmitter {
             this.refresh(client);
         }, 4500);
     }
-    
+
     async create(channel: TextBasedChannel, data: Giveaway) {
 
         let confirm = new ButtonBuilder()
@@ -177,7 +177,6 @@ class GiveawayManager extends EventEmitter {
 
         if (fetch && !db.GetGiveawayData(giveawayId).ended) {
             db.SetEnded(giveawayId, "End()");
-
             this.finnish(
                 client,
                 giveawayId,
@@ -418,6 +417,10 @@ class GiveawayManager extends EventEmitter {
                 db.DeleteGiveaway(drop_all_db[giveawayId].giveawayId)
             };
         }
+    };
+
+    delete(giveawayId: string) {
+        db.DeleteGiveaway(giveawayId);
     };
 }
 
