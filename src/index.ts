@@ -27,13 +27,13 @@ import { deepmerge } from 'deepmerge-ts';
 interface GiveawaysManagerOptions {
     storage?: string,
     config?: {
-        botsCanWin: boolean,
-        embedColor: string,
-        embedColorEnd: string,
-        reaction: string,
-        botName: string,
-        forceUpdateEvery: number,
-        endedGiveawaysLifetime: number,
+        botsCanWin?: boolean,
+        embedColor?: string,
+        embedColorEnd?: string,
+        reaction?: string,
+        botName?: string,
+        forceUpdateEvery?: number,
+        endedGiveawaysLifetime?: number,
     },
 };
 
@@ -60,7 +60,14 @@ class GiveawayManager extends EventEmitter {
             },
         }, options || {});
 
+        client.on('interactionCreate', interaction => {
+            if (interaction.isButton() && interaction.customId === "confirm-entry-giveaway") {
+                this.addEntries(interaction);
+            };
+        });
+
         this.refresh(client);
+
         setInterval(() => {
             this.refresh(client);
         }, this.options.config.forceUpdateEvery);
@@ -242,7 +249,7 @@ class GiveawayManager extends EventEmitter {
         return;
     };
 
-    selectWinners(fetch: Fetch, number: number): string[] {
+    private selectWinners(fetch: Fetch, number: number): string[] {
         if (fetch.entries.length === 0) {
             return undefined;
         };
@@ -396,8 +403,8 @@ class GiveawayManager extends EventEmitter {
         };
     };
 
-    async refresh(client: Client) {
-        let drop_all_db = await db.GetAllGiveawaysData();
+    private refresh(client: Client) {
+        let drop_all_db = db.GetAllGiveawaysData();
 
         for (let giveawayId in drop_all_db) {
             let now = new Date().getTime();
@@ -420,8 +427,11 @@ class GiveawayManager extends EventEmitter {
     };
 
     delete(giveawayId: string) {
-        db.DeleteGiveaway(giveawayId);
-    };
-}
 
+        if (this.isValid(giveawayId)) {
+            db.DeleteGiveaway(giveawayId);
+        };
+    }
+
+}
 export { GiveawayManager };
