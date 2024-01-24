@@ -138,7 +138,7 @@ class GiveawayManager extends EventEmitter {
         return;
     };
 
-    async removeEntries(interaction: ButtonInteraction<CacheType>) {
+    private async removeEntries(interaction: ButtonInteraction<CacheType>) {
 
         let now_members = db.RemoveEntries(interaction.message.id, interaction.user.id)
 
