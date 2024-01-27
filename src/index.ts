@@ -331,7 +331,7 @@ class GiveawayManager extends EventEmitter {
         let fetch = db.GetGiveawayData(giveawayId);
 
         if (interaction.guildId === fetch.guildId) {
-            var char: Array<string> = fetch.entries;
+            var char: string[] = fetch.entries;
 
             if (char.length == 0) {
                 await interaction.editReply({ content: "There is no entry into this competition." });
