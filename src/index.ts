@@ -73,45 +73,51 @@ class GiveawayManager extends EventEmitter {
         }, this.options.config.forceUpdateEvery);
     }
 
-    public async create(channel: TextBasedChannel, data: Giveaway) {
+    public create(channel: TextBasedChannel, data: Giveaway): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let confirm = new ButtonBuilder()
+                    .setCustomId('confirm-entry-giveaway')
+                    .setEmoji(this.options.config.reaction)
+                    .setStyle(ButtonStyle.Primary);
 
-        let confirm = new ButtonBuilder()
-            .setCustomId('confirm-entry-giveaway')
-            .setEmoji(this.options.config.reaction)
-            .setStyle(ButtonStyle.Primary);
+                let gw = new EmbedBuilder()
+                    .setColor(this.options.config.embedColor as ColorResolvable)
+                    .setTitle(data.prize)
+                    .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
+                    .setTimestamp((date.addMilliseconds(new Date(), data.duration)))
+                    .setFooter({ text: this.options.config.botName })
+                    .setImage(data.embedImageURL);
 
-        let gw = new EmbedBuilder()
-            .setColor(this.options.config.embedColor as ColorResolvable)
-            .setTitle(data.prize)
-            .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
-            .setTimestamp((date.addMilliseconds(new Date(), data.duration)))
-            .setFooter({ text: this.options.config.botName })
-            .setImage(data.embedImageURL);
+                let response = await channel.send({
+                    embeds: [gw],
+                    components: [
+                        new ActionRowBuilder<ButtonBuilder>()
+                            .addComponents(confirm)
+                    ]
+                });
 
-        let response = await channel.send({
-            embeds: [gw],
-            components: [
-                new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents(confirm)
-            ]
+                await db.Create(
+                    {
+                        channelId: response.channelId,
+                        guildId: response.guildId,
+
+                        winnerCount: data.winnerCount,
+                        prize: data.prize,
+                        hostedBy: data.hostedBy,
+                        expireIn: date.addMilliseconds(new Date(), data.duration),
+                        ended: false,
+                        entries: [],
+                        winners: [],
+                        isValid: true,
+                    }, response.id
+                );
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
         });
-
-        db.Create(
-            {
-                channelId: response.channelId,
-                guildId: response.guildId,
-
-                winnerCount: data.winnerCount,
-                prize: data.prize,
-                hostedBy: data.hostedBy,
-                expireIn: date.addMilliseconds(new Date(), data.duration),
-                ended: false,
-                entries: [],
-                winners: [],
-                isValid: true,
-            }, response.id
-        )
-        return;
     };
 
     public async addEntries(interaction: ButtonInteraction<CacheType>) {
@@ -179,42 +185,62 @@ class GiveawayManager extends EventEmitter {
         });
     }
 
-    public isValid(giveawayId: string): boolean {
-        let fetch = db.GetGiveawayData(giveawayId)
-
-        if (fetch) {
-            return true
-        } else {
-            return false;
-        }
+    public isValid(giveawayId: string): Promise<boolean> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let fetch = await db.GetGiveawayData(giveawayId);
+    
+                if (fetch) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };
+    
+    public isEnded(giveawayId: string): Promise<boolean> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let fetch = await db.GetGiveawayData(giveawayId);
+    
+                if (fetch.ended) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };
+    
+    end(client: Client, giveawayId: string): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let giveawayData = await db.GetGiveawayData(giveawayId);
+    
+                if (giveawayData.isValid && !giveawayData.ended) {
+                    await db.SetEnded(giveawayId, "End()");
+                    this.finish(
+                        client,
+                        giveawayId,
+                        giveawayData.guildId,
+                        giveawayData.channelId,
+                    );
+                    resolve();
+                } else {
+                    reject(new Error("Invalid Giveaway"));
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
     };
 
-    public isEnded(giveawayId: string): boolean {
-        let fetch = db.GetGiveawayData(giveawayId)
-
-        if (fetch.ended) {
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    end(client: Client, giveawayId: string) {
-
-        let fetch = db.GetGiveawayData(giveawayId).isValid
-
-        if (fetch && !db.GetGiveawayData(giveawayId).ended) {
-            db.SetEnded(giveawayId, "End()");
-            this.finnish(
-                client,
-                giveawayId,
-                db.GetGiveawayData(giveawayId).guildId,
-                db.GetGiveawayData(giveawayId).channelId,
-            );
-        } else return 404;
-    };
-
-    public async finnish(client: Client, giveawayId: string, guildId: string, channelId: string) {
+    public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
         let fetch = db.GetGiveawayData(giveawayId);
 
         if (!fetch.ended || fetch.ended === 'End()') {
@@ -303,50 +329,56 @@ class GiveawayManager extends EventEmitter {
         return winners.length > 0 ? winners : undefined;
     };
 
-    public async reroll(client: Client, giveawayId: string) {
-
-        let fetch = db.GetGiveawayData(giveawayId);
-
-        let guild = await client.guilds.fetch(fetch.guildId);
-        let channel = await guild.channels.fetch(fetch.channelId);
-
-        let message = await (channel as BaseGuildTextChannel).messages.fetch(giveawayId).catch(async () => {
-            db.DeleteGiveaway(giveawayId)
-            return;
-        }) as Message;
-
-        let winner = this.selectWinners(
-            { entries: fetch.entries, winners: fetch.winners },
-            fetch.winnerCount
-        );
-
-        let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
-
-        let embeds = new EmbedBuilder()
-            .setColor(this.options.config.embedColorEnd as ColorResolvable)
-            .setTitle(fetch.prize)
-            .setImage(fetch.embedImageURL)
-            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
-            .setTimestamp()
-            .setFooter({ text: this.options.config.botName });
-
-        await message?.edit({
-            embeds: [embeds]
+    public reroll(client: Client, giveawayId: string): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let fetch = await db.GetGiveawayData(giveawayId);
+    
+                let guild = await client.guilds.fetch(fetch.guildId);
+                let channel = await guild.channels.fetch(fetch.channelId);
+    
+                let message = await (channel as BaseGuildTextChannel).messages.fetch(giveawayId).catch(async () => {
+                    await db.DeleteGiveaway(giveawayId);
+                    resolve();
+                    return;
+                }) as Message;
+    
+                let winner = this.selectWinners(
+                    { entries: fetch.entries, winners: fetch.winners },
+                    fetch.winnerCount
+                );
+    
+                let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
+    
+                let embeds = new EmbedBuilder()
+                    .setColor(this.options.config.embedColorEnd as ColorResolvable)
+                    .setTitle(fetch.prize)
+                    .setImage(fetch.embedImageURL)
+                    .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
+                    .setTimestamp()
+                    .setFooter({ text: this.options.config.botName });
+    
+                await message?.edit({
+                    embeds: [embeds]
+                });
+    
+                if (winner && winner[0] !== 'None') {
+                    await message?.reply({
+                        content: `Congratulations ${winners}! You won the **${fetch.prize}**!`
+                    });
+                } else {
+                    await message?.reply({
+                        content: "No valid entrants, so a winner could not be determined!"
+                    });
+                }
+    
+                await db.SetWinners(giveawayId, winner || 'None');
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
         });
-
-        if (winner && winner[0] !== 'None') {
-            await message?.reply({
-                content: `Congratulations ${winners}! You won the **${fetch.prize}**!`
-            });
-        } else {
-            await message?.reply({
-                content: "No valid entrants, so a winner could not be determined!"
-            });
-        };
-
-        db.SetWinners(giveawayId, winner || 'None')
-        return;
-    };
+    };    
 
     public async listEntries(interaction: ChatInputCommandInteraction, giveawayId: string) {
         let fetch = db.GetGiveawayData(giveawayId);
@@ -433,7 +465,7 @@ class GiveawayManager extends EventEmitter {
             let cooldownTime = now - gwExp;
 
             if (now >= gwExp) {
-                this.finnish(
+                this.finish(
                     client,
                     drop_all_db[giveawayId].giveawayId,
                     drop_all_db[giveawayId].giveawayData.guildId,
@@ -447,26 +479,40 @@ class GiveawayManager extends EventEmitter {
         }
     };
 
-    public getGiveawayData(giveawayId: string) {
-        let fetch = db.GetGiveawayData(giveawayId);
-
-        if (fetch) {
-            return fetch;
-        } else return 404;
+    public getGiveawayData(giveawayId: string): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let fetch = await db.GetGiveawayData(giveawayId);
+    
+                if (fetch) {
+                    resolve(fetch);
+                } else {
+                    reject(new Error("Giveaway non trouvé"));
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
     };
-
+    
     public getAllGiveawayData() {
         return db.GetAllGiveawaysData();
     }
 
-    public delete(giveawayId: string) {
-
-        if (this.isValid(giveawayId)) {
-            db.DeleteGiveaway(giveawayId);
-        } else {
-            return false;
-        }
-    }
+    public delete(giveawayId: string): Promise<boolean> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (await this.isValid(giveawayId)) {
+                    await db.DeleteGiveaway(giveawayId);
+                    resolve(true);
+                } else {
+                    reject(new Error("Giveaway non valide"));
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };    
 
 }
 export { GiveawayManager };
