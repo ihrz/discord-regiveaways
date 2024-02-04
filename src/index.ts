@@ -455,6 +455,9 @@ class GiveawayManager extends EventEmitter {
         } else return 404;
     };
 
+    public getAllGiveawayData() {
+        return db.GetAllGiveawaysData();
+    }
 
     public delete(giveawayId: string) {
 
