@@ -123,9 +123,7 @@ class GiveawayManager extends EventEmitter {
             return;
         } else {
 
-            db.AddEntries(interaction.message.id, interaction.user.id);
             await interaction.deferUpdate();
-
             let regex = /Entries: \*\*\d+\*\*/;
 
             let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
@@ -134,6 +132,8 @@ class GiveawayManager extends EventEmitter {
                 );
 
             await interaction.message.edit({ embeds: [embedsToEdit] });
+            
+            db.AddEntries(interaction.message.id, interaction.user.id);
         };
         return;
     };
