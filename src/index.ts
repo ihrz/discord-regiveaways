@@ -12,7 +12,7 @@ import {
     Message,
     ButtonInteraction,
     CacheType,
-    ColorResolvable
+    ColorResolvable,
 } from 'discord.js';
 
 import { Giveaway } from './types/GiveawayData';
@@ -119,7 +119,7 @@ class GiveawayManager extends EventEmitter {
         let members = db.GetGiveawayData(interaction.message.id).entries;
 
         if (members.includes(interaction.user.id)) {
-            this.removeEntries(interaction);
+            await this.removeEntries(interaction);
             return;
         } else {
 
@@ -132,30 +132,51 @@ class GiveawayManager extends EventEmitter {
                 );
 
             await interaction.message.edit({ embeds: [embedsToEdit] });
-            
+
             db.AddEntries(interaction.message.id, interaction.user.id);
+
+            return;
         };
-        return;
     };
 
     private async removeEntries(interaction: ButtonInteraction<CacheType>) {
 
-        let now_members = db.RemoveEntries(interaction.message.id, interaction.user.id)
-
         await interaction.reply({
-            content: `${interaction.user} you have leave this giveaways !`,
+            content: `${interaction.user} are you sure to leave this giveaways ?`,
+            components: [
+                new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId("giveaway-leave")
+                            .setStyle(ButtonStyle.Danger)
+                            .setLabel("Leave Giveaway")
+                    )
+            ],
             ephemeral: true
         });
 
-        let regex = /Entries: \*\*\d+\*\*/;
+        let collector = interaction.channel.createMessageComponentCollector({
+            time: 30_000,
+            filter: (i) => interaction.user.id === i.user.id
+        });
 
-        let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
-            .setDescription(interaction.message.embeds[0]?.description!
-                .replace(regex, `Entries: **${now_members.length}**`)
-            );
+        collector.on('collect', async (i: ButtonInteraction<CacheType>) => {
+            if (i.customId === 'giveaway-leave') {
 
-        await interaction.message.edit({ embeds: [embedsToEdit] });
-        return;
+                let now_members = db.RemoveEntries(interaction.message.id, interaction.user.id);
+                let regex = /Entries: \*\*\d+\*\*/;
+
+                let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
+                    .setDescription(interaction.message.embeds[0]?.description!
+                        .replace(regex, `Entries: **${now_members.length}**`)
+                    );
+
+                await interaction.message.edit({ embeds: [embedsToEdit] });
+                await interaction.editReply({ components: [], content: `<@${interaction.user.id}>, you have leave this giveaways !` })
+
+                return;
+            };
+        });
     }
 
     public isValid(giveawayId: string): boolean {
