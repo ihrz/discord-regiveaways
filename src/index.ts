@@ -73,7 +73,7 @@ class GiveawayManager extends EventEmitter {
         }, this.options.config.forceUpdateEvery);
     }
 
-    async create(channel: TextBasedChannel, data: Giveaway) {
+    public async create(channel: TextBasedChannel, data: Giveaway) {
 
         let confirm = new ButtonBuilder()
             .setCustomId('confirm-entry-giveaway')
@@ -114,7 +114,7 @@ class GiveawayManager extends EventEmitter {
         return;
     };
 
-    async addEntries(interaction: ButtonInteraction<CacheType>) {
+    public async addEntries(interaction: ButtonInteraction<CacheType>) {
 
         let members = db.GetGiveawayData(interaction.message.id).entries;
 
@@ -158,7 +158,7 @@ class GiveawayManager extends EventEmitter {
         return;
     }
 
-    isValid(giveawayId: string): boolean {
+    public isValid(giveawayId: string): boolean {
         let fetch = db.GetGiveawayData(giveawayId)
 
         if (fetch) {
@@ -168,7 +168,7 @@ class GiveawayManager extends EventEmitter {
         }
     };
 
-    isEnded(giveawayId: string): boolean {
+    public isEnded(giveawayId: string): boolean {
         let fetch = db.GetGiveawayData(giveawayId)
 
         if (fetch.ended) {
@@ -193,7 +193,7 @@ class GiveawayManager extends EventEmitter {
         } else return 404;
     };
 
-    async finnish(client: Client, giveawayId: string, guildId: string, channelId: string) {
+    public async finnish(client: Client, giveawayId: string, guildId: string, channelId: string) {
         let fetch = db.GetGiveawayData(giveawayId);
 
         if (!fetch.ended || fetch.ended === 'End()') {
@@ -282,7 +282,7 @@ class GiveawayManager extends EventEmitter {
         return winners.length > 0 ? winners : undefined;
     };
 
-    async reroll(client: Client, giveawayId: string) {
+    public async reroll(client: Client, giveawayId: string) {
 
         let fetch = db.GetGiveawayData(giveawayId);
 
@@ -327,7 +327,7 @@ class GiveawayManager extends EventEmitter {
         return;
     };
 
-    async listEntries(interaction: ChatInputCommandInteraction, giveawayId: string) {
+    public async listEntries(interaction: ChatInputCommandInteraction, giveawayId: string) {
         let fetch = db.GetGiveawayData(giveawayId);
 
         if (interaction.guildId === fetch.guildId) {
@@ -426,7 +426,16 @@ class GiveawayManager extends EventEmitter {
         }
     };
 
-    delete(giveawayId: string) {
+    public getGiveawayData(giveawayId: string) {
+        let fetch = db.GetGiveawayData(giveawayId);
+
+        if (fetch) {
+            return fetch;
+        } else return 404;
+    };
+
+
+    public delete(giveawayId: string) {
 
         if (this.isValid(giveawayId)) {
             db.DeleteGiveaway(giveawayId);
