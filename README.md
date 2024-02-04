@@ -169,13 +169,16 @@ client.on('interactionCreate', (interaction) => {
     if (interaction.isChatInputCommand() && interaction.commandName === 'reroll') {
         const messageId = interaction.options.getString('message_id');
         
-        await client.giveawaysManager.reroll(client, messageId as string);
-            .then(() => {
-                interaction.reply('Success! Giveaway rerolled!');
-            })
-            .catch((err) => {
-                interaction.reply(`An error has occurred, please check and try again.\n\`${err}\``);
-            });
+        try {
+            await client.giveawaysManager.reroll(client, messageId as string);
+            
+            interaction.reply('Success! Giveaway rerolled!');
+
+        } catch (error) {
+            
+            interaction.reply(`An error has occurred, please check and try again\n\`${error}\``);
+
+        };
     }
 });
 ```

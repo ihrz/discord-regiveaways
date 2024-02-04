@@ -463,7 +463,9 @@ class GiveawayManager extends EventEmitter {
 
         if (this.isValid(giveawayId)) {
             db.DeleteGiveaway(giveawayId);
-        };
+        } else {
+            return false;
+        }
     }
 
 }
