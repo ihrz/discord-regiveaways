@@ -41,8 +41,32 @@ const client = new Client({
 });
 
 // Requires Manager from discord-regiveaways
+
+/*
+    For TypeScript
+*/
+
 import { GiveawaysManager } from 'discord-regiveaways';
+
 const manager = new GiveawaysManager(client, {
+    storage: './giveaways.json',
+    config: {
+        botsCanWin: false,
+        embedColor: '#FF0000',
+        embedColorEnd: '#000000',
+        reaction: '💫',
+        botName: "Giveaway Bot",
+        forceUpdateEvery: 3600,
+        endedGiveawaysLifetime: 1_600_000,
+    }
+});
+
+/*
+    For JavaScript
+*/
+const gw = require('discord-regiveaways');
+
+const manager = new gw.GiveawaysManager(client, {
     storage: './giveaways.json',
     config: {
         botsCanWin: false,
@@ -77,9 +101,11 @@ You can pass an options object to customize the giveaways. Here is a list of the
 client.on('interactionCreate', (interaction) => {
     const ms = require('ms');
 
-    if (interaction.isChatInputCommand() && interaction.commandName === 'start') {
-        // /start 2d 1 Awesome prize!
+    if (interaction.isChatInputCommand() && interaction.commandName === 'start-giveaway') {
+        // /start-giveaway 2d 1 Awesome prize!
         // Will create a giveaway with a duration of two days, with one winner and the prize will be "Awesome prize!"
+
+        await interaction.deferReply();
 
         let giveawayChannel = interaction.channel;
         var giveawayDuration = interaction.options.getString("time");
