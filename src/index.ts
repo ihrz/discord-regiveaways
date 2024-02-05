@@ -73,7 +73,7 @@ class GiveawayManager extends EventEmitter {
         }, this.options.config.forceUpdateEvery);
     }
 
-    public create(channel: TextBasedChannel, data: Giveaway): Promise<void> {
+    public create(channel: TextBasedChannel, data: Giveaway): Promise<Message> {
         return new Promise(async (resolve, reject) => {
             try {
                 let confirm = new ButtonBuilder()
@@ -113,7 +113,7 @@ class GiveawayManager extends EventEmitter {
                     }, response.id
                 );
 
-                resolve();
+                resolve(response);
             } catch (error) {
                 reject(error);
             }
@@ -189,7 +189,7 @@ class GiveawayManager extends EventEmitter {
         return new Promise(async (resolve, reject) => {
             try {
                 let fetch = await db.GetGiveawayData(giveawayId);
-    
+
                 if (fetch) {
                     resolve(true);
                 } else {
@@ -200,12 +200,12 @@ class GiveawayManager extends EventEmitter {
             }
         });
     };
-    
+
     public isEnded(giveawayId: string): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
             try {
                 let fetch = await db.GetGiveawayData(giveawayId);
-    
+
                 if (fetch.ended) {
                     resolve(true);
                 } else {
@@ -216,12 +216,12 @@ class GiveawayManager extends EventEmitter {
             }
         });
     };
-    
+
     end(client: Client, giveawayId: string): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
                 let giveawayData = await db.GetGiveawayData(giveawayId);
-    
+
                 if (giveawayData.isValid && !giveawayData.ended) {
                     await db.SetEnded(giveawayId, "End()");
                     this.finish(
@@ -333,23 +333,23 @@ class GiveawayManager extends EventEmitter {
         return new Promise(async (resolve, reject) => {
             try {
                 let fetch = await db.GetGiveawayData(giveawayId);
-    
+
                 let guild = await client.guilds.fetch(fetch.guildId);
                 let channel = await guild.channels.fetch(fetch.channelId);
-    
+
                 let message = await (channel as BaseGuildTextChannel).messages.fetch(giveawayId).catch(async () => {
                     await db.DeleteGiveaway(giveawayId);
                     resolve();
                     return;
                 }) as Message;
-    
+
                 let winner = this.selectWinners(
                     { entries: fetch.entries, winners: fetch.winners },
                     fetch.winnerCount
                 );
-    
+
                 let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
-    
+
                 let embeds = new EmbedBuilder()
                     .setColor(this.options.config.embedColorEnd as ColorResolvable)
                     .setTitle(fetch.prize)
@@ -357,11 +357,11 @@ class GiveawayManager extends EventEmitter {
                     .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
                     .setTimestamp()
                     .setFooter({ text: this.options.config.botName });
-    
+
                 await message?.edit({
                     embeds: [embeds]
                 });
-    
+
                 if (winner && winner[0] !== 'None') {
                     await message?.reply({
                         content: `Congratulations ${winners}! You won the **${fetch.prize}**!`
@@ -371,14 +371,14 @@ class GiveawayManager extends EventEmitter {
                         content: "No valid entrants, so a winner could not be determined!"
                     });
                 }
-    
+
                 await db.SetWinners(giveawayId, winner || 'None');
                 resolve();
             } catch (error) {
                 reject(error);
             }
         });
-    };    
+    };
 
     public async listEntries(interaction: ChatInputCommandInteraction, giveawayId: string) {
         let fetch = db.GetGiveawayData(giveawayId);
@@ -483,7 +483,7 @@ class GiveawayManager extends EventEmitter {
         return new Promise(async (resolve, reject) => {
             try {
                 let fetch = await db.GetGiveawayData(giveawayId);
-    
+
                 if (fetch) {
                     resolve(fetch);
                 } else {
@@ -494,7 +494,7 @@ class GiveawayManager extends EventEmitter {
             }
         });
     };
-    
+
     public getAllGiveawayData() {
         return db.GetAllGiveawaysData();
     }
@@ -512,7 +512,7 @@ class GiveawayManager extends EventEmitter {
                 reject(error);
             }
         });
-    };    
+    };
 
 }
 export { GiveawayManager };
