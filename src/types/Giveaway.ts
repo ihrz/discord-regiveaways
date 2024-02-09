@@ -15,8 +15,17 @@ interface Giveaway {
     duration?: number;
 
     embedImageURL?: string;
-}
+};
+
+interface GiveawayCreateOptions {
+    duration: number;
+    prize: string;
+    winnerCount: number;
+    hostedBy: string;
+    embedImageURL: string | null;
+};
 
 export {
-    Giveaway
+    Giveaway,
+    GiveawayCreateOptions
 };

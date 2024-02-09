@@ -1,4 +1,4 @@
-import { Giveaway } from "./types/GiveawayData";
+import { Giveaway } from './types/Giveaway';
 import * as fs from 'fs';
 
 let path = `${__dirname}/giveaways`;

@@ -15,7 +15,7 @@ import {
     ColorResolvable,
 } from 'discord.js';
 
-import { Giveaway } from './types/GiveawayData';
+import { Giveaway, GiveawayCreateOptions } from './types/Giveaway';
 import { Fetch } from './types/Data';
 
 import { EventEmitter } from 'node:events';
@@ -73,7 +73,7 @@ class GiveawayManager extends EventEmitter {
         }, this.options.config.forceUpdateEvery);
     }
 
-    public create(channel: TextBasedChannel, data: Giveaway): Promise<Message> {
+    public create(channel: TextBasedChannel, data: GiveawayCreateOptions): Promise<Message> {
         return new Promise(async (resolve, reject) => {
             try {
                 let confirm = new ButtonBuilder()
@@ -97,7 +97,7 @@ class GiveawayManager extends EventEmitter {
                     ]
                 });
 
-                await db.Create(
+                db.Create(
                     {
                         channelId: response.channelId,
                         guildId: response.guildId,
