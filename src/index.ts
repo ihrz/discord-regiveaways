@@ -84,8 +84,8 @@ class GiveawayManager extends EventEmitter {
                 let gw = new EmbedBuilder()
                     .setColor(this.options.config.embedColor as ColorResolvable)
                     .setTitle(data.prize)
-                    .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
-                    .setTimestamp((date.addMilliseconds(new Date(), data.duration)))
+                    .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration, true)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration, true)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
+                    .setTimestamp((date.addMilliseconds(new Date(), data.duration, true)))
                     .setFooter({ text: this.options.config.botName })
                     .setImage(data.embedImageURL);
 
@@ -105,7 +105,7 @@ class GiveawayManager extends EventEmitter {
                         winnerCount: data.winnerCount,
                         prize: data.prize,
                         hostedBy: data.hostedBy,
-                        expireIn: date.addMilliseconds(new Date(), data.duration),
+                        expireIn: date.addMilliseconds(new Date(), data.duration, true),
                         ended: false,
                         entries: [],
                         winners: [],
