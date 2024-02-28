@@ -1,20 +1,34 @@
 import { Giveaway } from './types/Giveaway';
-import * as fs from 'fs';
 
-let path = `${__dirname}/giveaways`;
-if (!fs.existsSync(path)) {
-    fs.mkdirSync(path);
-};
+import {
+    existsSync,
+    mkdirSync,
+    readFileSync,
+    readdirSync,
+    unlinkSync,
+    writeFileSync
+} from 'node:fs';
 
 class db {
+    path: string;
+
+    public InitFilePath(path: string) {
+
+        if (!existsSync(path)) {
+            mkdirSync(path);
+        };
+
+        this.path = path
+    };
+
     private getFilePath(giveawayId: string): string {
-        return `${path}/${giveawayId}.json`;
+        return `${this.path}/${giveawayId}.json`;
     }
 
     private readGiveawayFile(giveawayId: string): Giveaway | null {
         const filePath = this.getFilePath(giveawayId);
         try {
-            const data = fs.readFileSync(filePath, 'utf-8');
+            const data = readFileSync(filePath, 'utf-8');
             return JSON.parse(data) as Giveaway;
         } catch (error) {
             return null;
@@ -23,7 +37,7 @@ class db {
 
     private writeGiveawayFile(giveawayId: string, data: Giveaway) {
         const filePath = this.getFilePath(giveawayId);
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+        writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
     }
 
     AddEntries(giveawayId: string, user: string) {
@@ -68,7 +82,7 @@ class db {
     }
 
     GetAllGiveawaysData(): { giveawayId: string; giveawayData: Giveaway }[] {
-        const giveawayFiles = fs.readdirSync(path);
+        const giveawayFiles = readdirSync(this.path);
         const allGiveaways: { giveawayId: string; giveawayData: Giveaway }[] = [];
 
         giveawayFiles.forEach((file) => {
@@ -86,7 +100,7 @@ class db {
         const filePath = this.getFilePath(giveawayId);
 
         try {
-            fs.unlinkSync(filePath);
+            unlinkSync(filePath);
             console.log(`Giveaway ${giveawayId} deleted successfully.`);
         } catch (error) {
             console.error(`Error deleting giveaway ${giveawayId}: ${error}`);

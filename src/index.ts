@@ -48,7 +48,7 @@ class GiveawayManager extends EventEmitter {
         }
 
         this.options = deepmerge({
-            storage: './giveaways.json',
+            storage: './giveaways',
             config: {
                 botsCanWin: false,
                 embedColor: '#9a5af2',
@@ -60,6 +60,8 @@ class GiveawayManager extends EventEmitter {
             },
         }, options || {});
 
+        db.InitFilePath(this.options.storage);
+        
         client.on('interactionCreate', interaction => {
             if (interaction.isButton() && interaction.customId === "confirm-entry-giveaway") {
                 this.addEntries(interaction);
