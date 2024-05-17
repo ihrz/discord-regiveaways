@@ -112,6 +112,7 @@ class GiveawayManager extends EventEmitter {
                         entries: [],
                         winners: [],
                         isValid: true,
+                        embedImageURL: data.embedImageURL
                     }, response.id
                 );
 
