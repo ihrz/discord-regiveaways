@@ -61,7 +61,7 @@ class GiveawayManager extends EventEmitter {
         }, options || {});
 
         db.InitFilePath(this.options.storage);
-        
+
         client.on('interactionCreate', interaction => {
             if (interaction.isButton() && interaction.customId === "confirm-entry-giveaway") {
                 this.addEntries(interaction);
@@ -190,7 +190,7 @@ class GiveawayManager extends EventEmitter {
     public isValid(giveawayId: string): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
             try {
-                let fetch = await db.GetGiveawayData(giveawayId);
+                let fetch = db.GetGiveawayData(giveawayId);
 
                 if (fetch) {
                     resolve(true);
@@ -206,9 +206,9 @@ class GiveawayManager extends EventEmitter {
     public isEnded(giveawayId: string): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
             try {
-                let fetch = await db.GetGiveawayData(giveawayId);
+                let fetch = db.GetGiveawayData(giveawayId);
 
-                if (fetch.ended) {
+                if (fetch?.ended) {
                     resolve(true);
                 } else {
                     resolve(false);
@@ -222,10 +222,10 @@ class GiveawayManager extends EventEmitter {
     end(client: Client, giveawayId: string): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
-                let giveawayData = await db.GetGiveawayData(giveawayId);
+                let giveawayData = db.GetGiveawayData(giveawayId);
 
                 if (giveawayData.isValid && !giveawayData.ended) {
-                    await db.SetEnded(giveawayId, "End()");
+                    db.SetEnded(giveawayId, "End()");
                     this.finish(
                         client,
                         giveawayId,
