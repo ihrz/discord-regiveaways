@@ -273,6 +273,7 @@ class GiveawayManager extends EventEmitter {
             let embeds = new EmbedBuilder()
                 .setColor(this.options.config.embedColorEnd as ColorResolvable)
                 .setTitle(fetch.prize)
+                .setImage(fetch.embedImageURL)
                 .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
                 .setTimestamp()
 
