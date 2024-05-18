@@ -468,6 +468,8 @@ class GiveawayManager extends EventEmitter {
             let gwExp = new Date(drop_all_db[giveawayId].giveawayData.expireIn).getTime();
             let cooldownTime = now - gwExp;
 
+            db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
+            
             if (now >= gwExp) {
                 this.finish(
                     client,

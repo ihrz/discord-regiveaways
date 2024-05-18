@@ -106,6 +106,16 @@ class db {
             console.error(`Error deleting giveaway ${giveawayId}: ${error}`);
         }
     }
+
+    AvoidDoubleEntries(giveawayId: string) {
+        const giveaway = this.readGiveawayFile(giveawayId);
+        const uniqueEntries = Array.from(new Set(giveaway.entries));
+
+        giveaway.entries = uniqueEntries;
+
+        this.writeGiveawayFile(giveawayId, giveaway);
+    }
+
 };
 
 export default new db();
