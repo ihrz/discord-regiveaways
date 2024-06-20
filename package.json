@@ -1,6 +1,6 @@
 {
   "name": "discord-regiveaways",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "🎉 Complete framework to facilitate the creation of giveaways using pwss !",
   "main": "lib/index.js",
   "files": [
