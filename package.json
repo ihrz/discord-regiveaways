@@ -1,7 +1,7 @@
 {
   "name": "discord-regiveaways",
   "version": "1.3.0",
-  "description": "🎉 Complete framework to facilitate the creation of giveaways using discord.js v14 ",
+  "description": "🎉 Complete framework to facilitate the creation of giveaways using pwss !",
   "main": "lib/index.js",
   "files": [
     "lib/**/*"
@@ -18,7 +18,7 @@
   },
   "keywords": [
     "discord",
-    "discord.js",
+    "pwss",
     "giveaways",
     "winner",
     "framework",
@@ -36,7 +36,7 @@
   "dependencies": {
     "date-and-time": "^3.3.0",
     "deepmerge-ts": "^5.1.0",
-    "discord.js": "^14.15.3",
+    "pwss": "^1.0.20",
     "types": "^0.1.1"
   },
   "devDependencies": {

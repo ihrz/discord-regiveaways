@@ -30,7 +30,7 @@ Required Discord Intents: `Guilds` and `GuildMessageReactions`.
 Optional Discord Privileged Intent for better performance: `GuildMembers`.
 
 ```js
-import { Client } from 'discord.js';
+import { Client } from 'pwss';
 
 const client = new Client({
     intents: [

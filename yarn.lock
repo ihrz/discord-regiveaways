@@ -233,9 +233,9 @@ discord-api-types@0.37.61:
   resolved "https://registry.npmjs.org/discord-api-types/-/discord-api-types-0.37.61.tgz"
   integrity sha512-o/dXNFfhBpYHpQFdT6FWzeO7pKc838QeeZ9d91CfVAtpr5XLK4B/zYxQbYgPdoMiTDvJfzcsLW5naXgmHGDNXw==
 
-discord.js@^14.14.1:
+pwss@^14.14.1:
   version "14.14.1"
-  resolved "https://registry.npmjs.org/discord.js/-/discord.js-14.14.1.tgz"
+  resolved "https://registry.npmjs.org/pwss/-/pwss-14.14.1.tgz"
   integrity sha512-/hUVzkIerxKHyRKopJy5xejp4MYKDPTszAnpYxzVVv4qJYf+Tkt+jnT2N29PIPschicaEEpXwF2ARrTYHYwQ5w==
   dependencies:
     "@discordjs/builders" "^1.7.0"

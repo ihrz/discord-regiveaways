@@ -13,12 +13,11 @@ import {
     ButtonInteraction,
     CacheType,
     ColorResolvable,
-} from 'discord.js';
+} from 'pwss';
 
-import { Giveaway, GiveawayCreateOptions } from './types/Giveaway';
+import { GiveawayCreateOptions } from './types/Giveaway';
 import { Fetch } from './types/Data';
 
-import { EventEmitter } from 'node:events';
 import * as date from 'date-and-time';
 import db from './db.js';
 
@@ -37,12 +36,11 @@ interface GiveawaysManagerOptions {
     },
 };
 
-class GiveawayManager extends EventEmitter {
+class GiveawayManager {
     client: Client;
     options: GiveawaysManagerOptions;
 
     constructor(client: Client, options?: GiveawaysManagerOptions) {
-        super();
         if (!client.options) {
             throw new Error(`Client is a required option. (val=${client})`);
         }
@@ -469,7 +467,7 @@ class GiveawayManager extends EventEmitter {
             let cooldownTime = now - gwExp;
 
             db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
-            
+
             if (now >= gwExp) {
                 this.finish(
                     client,
